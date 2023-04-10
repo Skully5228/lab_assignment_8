@@ -1,20 +1,126 @@
+//Justin Rimmeli
+//5299451
+
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 int extraMemoryAllocated;
 
+void heapify(int arr[], int n, int i)
+{
+	int largest = i; // Initialize largest as root
+	int left = 2 * i + 1; // left child
+	int right = 2 * i + 2; // right child
+
+    	// If left child is larger than root
+	if (left < n && arr[left] > arr[largest])
+        largest = left;
+
+    	// If right child is larger than largest so far
+	if (right < n && arr[right] > arr[largest])
+        largest = right;
+
+    	// If largest is not root
+	if (largest != i) 
+	{
+		int temp = arr[i];
+		arr[i] = arr[largest];
+		arr[largest] = temp;
+
+        	// Recursively heapify the affected sub-tree
+		heapify(arr, n, largest);
+	}
+}
 // implements heap sort
 // extraMemoryAllocated counts bytes of memory allocated
 void heapSort(int arr[], int n)
 {
+	// Build heap (rearrange array)
+	for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+        // One by one extract an element from heap
+	for (int i = n - 1; i >= 0; i--) 
+	{
+        	// Move current root to end
+		int temp = arr[0];
+		arr[0] = arr[i];
+		arr[i] = temp;
+
+		// call max heapify on the reduced heap
+		heapify(arr, i, 0);
+	}
 }
 
+void merge(int pData[], int l, int m, int r)
+{
+	int i, j, k;
+	int n1 = m - l + 1;
+	int n2 = r - m;
+
+	// Create temporary arrays for left and right sub-arrays
+	int *L = (int *)malloc(n1 * sizeof(int));
+	int *R = (int *)malloc(n2 * sizeof(int));
+
+	// Copy data to temporary arrays
+	for (i = 0; i < n1; i++)
+		L[i] = pData[l + i];
+	for (j = 0; j < n2; j++)
+		R[j] = pData[m + 1 + j];
+
+	// Merge the temporary arrays back into pData
+	i = 0;
+	j = 0;
+	k = l;
+	while (i < n1 && j < n2) 
+	{
+		if (L[i] <= R[j]) 
+		{
+			pData[k] = L[i];
+			i++;
+		} 
+		else 
+		{
+			pData[k] = R[j];
+			j++;
+		}
+		k++;
+	}
+
+	// Copy the remaining elements of L[], if any
+	while (i < n1) 
+	{
+		pData[k] = L[i];
+		i++;
+		k++;
+	}
+
+	// Copy the remaining elements of R[], if any
+	while (j < n2) 
+	{
+		pData[k] = R[j];
+		j++;
+		k++;
+	}
+
+	// Free memory used by temporary arrays
+	free(L);
+	free(R);
+}
 
 // implement merge sort
 // extraMemoryAllocated counts bytes of extra memory allocated
 void mergeSort(int pData[], int l, int r)
 {
+	if (l < r) 
+	{
+		int m = l + (r - l) / 2;
+		mergeSort(pData, l, m);
+		mergeSort(pData, m + 1, r);
+		merge(pData, l, m, r);
+	}
 }
 
 // parses input file to an integer array
